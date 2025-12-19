@@ -12,6 +12,7 @@ body.page-search .entry-content {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 24px;
   align-items: start;
+   
 }
 
 /* Each filter list from the shortcodes */
@@ -19,6 +20,7 @@ body.page-search .artist-terms h3,
 .artist-terms h3 {
   margin: 0 0 8px;
   font-size: 1rem;
+ 
 }
 body.page-search .artist-terms--links,
 .artist-terms--links {
@@ -46,6 +48,7 @@ body.page-search .artist-terms--dropdown select,
   border: 1px solid #ddd;
   border-radius: 6px;
   background: #fff;
+  font-size: 14px;
 }
 
 body.page-search .artist-terms--disclosure details,
@@ -62,6 +65,7 @@ body.page-search .artist-terms--disclosure summary,
   border: 1px solid #ddd;
   border-radius: 6px;
   background: #fff;
+  font-size: 14px;
 }
 
 body.page-search .artist-terms--disclosure summary::-webkit-details-marker,
@@ -90,6 +94,7 @@ body.page-search .artist-terms--disclosure .artist-terms__option,
 .artist-terms--disclosure .artist-terms__option {
   display: block;
   margin: 6px 0;
+  font-size: 14px;
 }
 
 body.page-search .artist-terms .artist-terms__apply,
@@ -101,7 +106,7 @@ body.page-search .artist-terms .artist-terms__apply,
   border-radius: 6px;
   background: #76153C;
   color: #fff;
-  font-size: 0.95rem;
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
   appearance: none;
@@ -110,6 +115,17 @@ body.page-search .artist-terms .artist-terms__apply,
 /* Includes equipment toggle */
 body.page-search .artist-flag--equipment,
 .artist-flag--equipment { justify-self: end; }
+
+/* Toggle button for "Med utrustning" */
+.artist-flag--equipment { display: flex; align-items: center; gap: 10px; }
+.artist-flag--equipment strong { font-weight: 600; margin-right: 6px; }
+.artist-toggle { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+.artist-toggle .artist-toggle__track { width: 44px; height: 24px; background: #e6e6e6; border-radius: 9999px; position: relative; display: inline-block; transition: background .18s ease; }
+.artist-toggle .artist-toggle__thumb { width: 18px; height: 18px; background: #fff; border-radius: 50%; position: absolute; top: 50%; left: 3px; transform: translateY(-50%); box-shadow: 0 1px 3px rgba(0,0,0,.12); transition: left .18s ease, transform .18s ease; }
+.artist-toggle.is-active .artist-toggle__track { background: #76153c; }
+.artist-toggle.is-active .artist-toggle__thumb { left: calc(100% - 3px - 18px); }
+.artist-toggle__label { font-size: 0.95rem; color: #333; }
+.artist-toggle[aria-pressed="true"] .artist-toggle__label { color: #76153c; font-weight: 600; }
 
 /* Make the results block span the full grid width */
 body.page-search .results,
@@ -211,6 +227,12 @@ body.page-search .results .pagination .current,
   color: #333;
   margin-bottom: 16px;
   justify-self: center;
+}
+
+.artist-flag__title {
+  font-weight: 500;
+  margin-right: 6px;
+  font-size: 14px;
 }
 
 

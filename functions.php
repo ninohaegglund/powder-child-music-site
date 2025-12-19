@@ -202,8 +202,13 @@ add_shortcode('artist_includes_equipment', function($atts){
 
   ob_start();
   echo '<div class="artist-flag artist-flag--equipment">';
-  echo '<strong>'.esc_html($a['title']).':</strong> ';
-  echo '<a class="'.($isOn?'is-active':'').'" href="'.$url.'">'.($isOn ? 'Ja' : 'Nej').'</a>';
+  echo '<p class="artist-flag__title">'.esc_html($a['title']).':</p> ';
+  $active_class = $isOn ? 'is-active' : '';
+  $aria = $isOn ? 'true' : 'false';
+  echo '<a class="artist-toggle '.esc_attr($active_class).'" role="button" aria-pressed="'.esc_attr($aria).'" href="'.esc_url($url).'">';
+  echo '<span class="artist-toggle__track" aria-hidden="true"><span class="artist-toggle__thumb"></span></span>';
+  echo '<span class="artist-toggle__label">'.($isOn ? '' : '').'</span>';
+  echo '</a>';
   echo '</div>';
   return ob_get_clean();
 });
