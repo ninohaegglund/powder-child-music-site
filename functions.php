@@ -227,7 +227,7 @@ add_shortcode('artist_search_results', function($atts){
   $service      = $g('service');
   $genre        = $g('genre');
   $city         = $g('city');
-  $performance  = $g('performance');
+  $performance = $g('performance_type') ?: $g('performance');
   $instrument   = $g('instrument');
   $equipIn = strtolower((string)($g('includesequipment') ?: $g('includes_equipment') ?: $g('includesEquipment')));
   $sorting      = $g('sorting');
