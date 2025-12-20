@@ -216,9 +216,17 @@ add_shortcode('artist_includes_equipment', function($atts){
 /* ===== Results shortcode: lists all artists when no filters ===== */
 add_shortcode('artist_search_results', function($atts){
   $a = shortcode_atts([
-    'post_type' => 'artist',  
-    
+    'post_type' => 'artist',
     'limit'     => '15',
+    // optional preset filters (shortcode attributes)
+    'musician_type' => '',
+    'service'       => '',
+    'genre'         => '',
+    'city'          => '',
+    'performance'   => '',
+    'instrument'    => '',
+    'includes_equipment' => '',
+    'layout'     => 'grid',    // grid | carousel (horizontal single-row)
   ], $atts, 'artist_search_results');
 
   $post_type = sanitize_key($a['post_type']);
@@ -227,14 +235,30 @@ add_shortcode('artist_search_results', function($atts){
   $g = function($k,$d=''){ $v=$_GET[$k]??$d; return is_array($v)?array_map('sanitize_text_field',$v):sanitize_text_field($v); };
   $toArr = function($v){ if($v===''||$v===null) return []; return is_array($v)?$v:array_filter(array_map('trim', explode(',', $v))); };
 
-  // Read filters
-  $musicianType = $g('musician_type');
-  $service      = $g('service');
-  $genre        = $g('genre');
-  $city         = $g('city');
-  $performance = $g('performance_type') ?: $g('performance');
-  $instrument   = $g('instrument');
-  $equipIn = strtolower((string)($g('includesequipment') ?: $g('includes_equipment') ?: $g('includesEquipment')));
+  // Read filters (merge shortcode-presets with URL params)
+  $mergeVals = function($shortcodeVal, $urlVal) use ($toArr) {
+    $preset = $toArr($shortcodeVal);
+    $url = $toArr($urlVal);
+    $merged = array_values(array_unique(array_filter(array_map('sanitize_title', array_merge($preset, $url)))));
+    return $merged;
+  };
+
+  $musicianType = $mergeVals($a['musician_type'], $g('musician_type'));
+  $service      = $mergeVals($a['service'], $g('service'));
+  $genre        = $mergeVals($a['genre'], $g('genre'));
+  $city         = $mergeVals($a['city'], $g('city'));
+  $performance  = $mergeVals($a['performance'], ($g('performance') ?: $g('performance_type')));
+  $instrument   = $mergeVals($a['instrument'], $g('instrument'));
+
+  // includes_equipment: shortcode attribute overrides URL if provided
+  $attrEquip = strtolower(trim((string)($a['includes_equipment'] ?? '')));
+  $urlEquip = strtolower((string)($g('includesEquipment') ?: $g('includes_equipment') ?: $g('includesequipment')));
+  if ($attrEquip !== '') {
+    $equipIn = $attrEquip;
+  } else {
+    $equipIn = $urlEquip;
+  }
+
   $sorting      = $g('sorting');
   $search       = $g('s');
   $paged        = max(1, (int)$g('page', 1));
@@ -284,7 +308,8 @@ add_shortcode('artist_search_results', function($atts){
   ob_start();
   echo '<section class="results">';
   if ($q->have_posts()){
-    echo '<ul class="artist-list">';
+    $list_class = 'artist-list' . ($a['layout'] === 'carousel' ? ' artist-list--horizontal' : '');
+    echo '<ul class="'.esc_attr($list_class).'">';
     while ($q->have_posts()){ $q->the_post();
       $price = get_post_meta(get_the_ID(),'price',true);
       $service_terms = get_the_terms(get_the_ID(), 'service');
@@ -295,12 +320,14 @@ add_shortcode('artist_search_results', function($atts){
           $service_label = (string) $first->name;
         }
       }
-      echo '<li class="artist-card"><a href="'.esc_url(get_permalink()).'">';
-      if (has_post_thumbnail()) the_post_thumbnail('medium');
+      echo '<li class="artist-card">';
+      if (has_post_thumbnail()) {
+        echo '<a class="artist-card__media" href="'.esc_url(get_permalink()).'">'.get_the_post_thumbnail(get_the_ID(),'medium').'</a>';
+      }
       if ($service_label !== '') echo '<p class="artist-service">'.esc_html($service_label).'</p>';
-      echo '<h3>'.esc_html(get_the_title()).'</h3>';
+      echo '<h3><a href="'.esc_url(get_permalink()).'">'.esc_html(get_the_title()).'</a></h3>';
       if ($price!=='') echo '<p class="artist-price">Från '.esc_html(number_format((float)$price,0,',',' ')).' SEK</p>';
-      echo '</a></li>';
+      echo '</li>';
     }
     echo '</ul>';
 

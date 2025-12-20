@@ -144,19 +144,46 @@ body.page-search .results .artist-list,
   padding: 2em;
   margin: 0;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   justify-self: center;
 }
-body.page-search .results .artist-card a,
-.results .artist-card a {
+/* Carousel / horizontal layout: keep items on a single row and remove the max-width constraint */
+.results .artist-list.artist-list--horizontal,
+body.page-search .results .artist-list.artist-list--horizontal {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 24px !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  padding: 1em 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+  justify-self: start !important;
+}
+.results .artist-list.artist-list--horizontal .artist-card,
+body.page-search .results .artist-list.artist-list--horizontal .artist-card {
+  flex: 0 0 260px !important;
+  max-width: 260px !important;
+}
+/* Make the whole artist card a styled container (anchor now wraps only media/title)
+   Keep anchors inside minimal. */
+body.page-search .results .artist-card,
+.results .artist-card {
   display: block;
+  position: relative;
   background: #fff;
   border: 1px solid #e6e6e6;
   border-radius: 12px;
   padding: 16px;
-  text-decoration: none;
   color: inherit;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.123);
+}
+body.page-search .results .artist-card a,
+.results .artist-card a {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
 }
 body.page-search .results .artist-card img,
 .results .artist-card img {
@@ -189,7 +216,7 @@ body.page-search .results .artist-card .artist-service,
   border: 1px solid #ddd;
   border-radius: 9999px;
   font-size: 0.9rem;
-  color: #4b2a8f;
+  color: #76153c;
 }
 
 body.page-search .results .artist-card .artist-price,
@@ -233,6 +260,17 @@ body.page-search .results .pagination .current,
   font-weight: 500;
   margin-right: 6px;
   font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  body.page-search .results .artist-card .artist-service,
+  .results .artist-card .artist-service {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
 }
 
 
