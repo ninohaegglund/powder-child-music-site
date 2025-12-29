@@ -68,9 +68,8 @@ add_shortcode('artist_terms', function($atts){
     foreach ($terms as $t) {
       $active = in_array($t->slug, $selected, true);
 
-      // toggle this term while preserving other query params
       $params = $_GET;
-      unset($params['page']); // reset pagination on filter change
+      unset($params['page']); 
       $new = $selected;
 
       if ($active) {
@@ -115,7 +114,6 @@ add_shortcode('artist_terms', function($atts){
     echo '<button class="artist-terms__apply" type="submit">Tillämpa</button>';
     echo '</form>';
   } elseif ($a['display'] === 'disclosure') {
-    // dropdown-like UI that reveals checkboxes (multi-select) without JS
     $selected_count = is_array($selected) ? count($selected) : 0;
     $label = $a['placeholder'] !== ''
       ? sanitize_text_field($a['placeholder'])
@@ -213,12 +211,10 @@ add_shortcode('artist_includes_equipment', function($atts){
   return ob_get_clean();
 });
 
-/* ===== Results shortcode: lists all artists when no filters ===== */
 add_shortcode('artist_search_results', function($atts){
   $a = shortcode_atts([
     'post_type' => 'artist',
     'limit'     => '15',
-    // optional preset filters (shortcode attributes)
     'musician_type' => '',
     'service'       => '',
     'genre'         => '',
@@ -226,7 +222,7 @@ add_shortcode('artist_search_results', function($atts){
     'performance'   => '',
     'instrument'    => '',
     'includes_equipment' => '',
-    'layout'     => 'grid',    // grid | carousel (horizontal single-row)
+    'layout'     => 'grid',    
   ], $atts, 'artist_search_results');
 
   $post_type = sanitize_key($a['post_type']);
@@ -235,7 +231,6 @@ add_shortcode('artist_search_results', function($atts){
   $g = function($k,$d=''){ $v=$_GET[$k]??$d; return is_array($v)?array_map('sanitize_text_field',$v):sanitize_text_field($v); };
   $toArr = function($v){ if($v===''||$v===null) return []; return is_array($v)?$v:array_filter(array_map('trim', explode(',', $v))); };
 
-  // Read filters (merge shortcode-presets with URL params)
   $mergeVals = function($shortcodeVal, $urlVal) use ($toArr) {
     $preset = $toArr($shortcodeVal);
     $url = $toArr($urlVal);
@@ -250,7 +245,6 @@ add_shortcode('artist_search_results', function($atts){
   $performance  = $mergeVals($a['performance'], ($g('performance') ?: $g('performance_type')));
   $instrument   = $mergeVals($a['instrument'], $g('instrument'));
 
-  // includes_equipment: shortcode attribute overrides URL if provided
   $attrEquip = strtolower(trim((string)($a['includes_equipment'] ?? '')));
   $urlEquip = strtolower((string)($g('includesEquipment') ?: $g('includes_equipment') ?: $g('includesequipment')));
   if ($attrEquip !== '') {

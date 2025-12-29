@@ -90,6 +90,23 @@ body.page-search .artist-terms--disclosure .artist-terms__options,
   margin-bottom: 10px;
 }
 
+/* Make disclosure panels overlay content instead of pushing layout */
+.artist-terms--disclosure { position: relative; }
+.artist-terms--disclosure .artist-terms__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 9999;
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+  margin-top: 0; /* remove previous flow margin */
+}
+
+@media (max-width: 640px) {
+  .artist-terms--disclosure .artist-terms__panel { left: 8px; right: 8px; width: auto; }
+}
+
 body.page-search .artist-terms--disclosure .artist-terms__option,
 .artist-terms--disclosure .artist-terms__option {
   display: block;
@@ -261,6 +278,119 @@ body.page-search .results .pagination .current,
   margin-right: 6px;
   font-size: 14px;
 }
+/* Ninja Forms submit buttons */
+.nf-form-cont input[type="submit"],
+.nf-form-cont button[type="submit"],
+.nf-form-cont .nf-form-content input[type="submit"],
+.nf-form-cont .nf-form-content button[type="submit"] {
+  display: inline-block;
+  padding: 12px 28px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #ffffff;
+  background: #7b1538;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(0,0,0,0.06);
+  transition: transform .08s ease, box-shadow .08s ease, background-color .12s ease;
+}
+
+/* Hover / focus */
+.nf-form-cont input[type="submit"]:hover,
+.nf-form-cont button[type="submit"]:hover,
+.nf-form-cont input[type="submit"]:focus,
+.nf-form-cont button[type="submit"]:focus {
+  background: #5c0f2a;
+  outline: none;
+}
+
+/* Disabled state */
+.nf-form-cont input[type="submit"]:disabled,
+.nf-form-cont button[type="submit"][disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Inputs / selects / textareas — slightly rounded, softer border */
+.nf-form-cont .nf-field-element input,
+.nf-form-cont .nf-field-element select,
+.nf-form-cont .nf-field-element textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d6d6d6;          
+  border-radius: 6px;                 
+  background: #ffffff;                
+  color: #222222;
+  font-size: 14px;
+  transition: border-color .12s ease, box-shadow .12s ease, background .12s ease;
+  -webkit-appearance: none;           /* removes default iOS styling for inputs/selects */
+}
+
+.nf-field-label .nf-label-span, .nf-field-label label {
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+}
+
+.nf-error-msg, .ninja-forms-req-symbol {
+    color: #e80000;
+    font-size: 14px;
+}
+
+.nf-form-fields-required {
+    font-size: 14px;
+    display: none;
+}
+
+.nf-response-msg {
+   font-size: 14px;
+    display: none;
+}
+
+/* Placeholder color */
+.nf-form-cont .nf-field-element ::placeholder {
+  color: #9ea6ad;
+  opacity: 1;
+}
+
+.label-above .nf-field-element, .label-below .nf-field-element {
+    margin: 0;
+    width: 100%;
+    font-size: 16px;
+}
+
+
+/* Focus (accessible, subtle glow using your button color) */
+.nf-form-cont .nf-field-element input:focus,
+.nf-form-cont .nf-field-element select:focus,
+.nf-form-cont .nf-field-element textarea:focus {
+  outline: none;
+  border-color: rgba(123,21,56,0.55); /* uses your button color with opacity */
+  box-shadow: 0 0 0 4px rgba(123,21,56,0.06);
+}
+
+/* Disabled fields */
+.nf-form-cont .nf-field-element input[disabled],
+.nf-form-cont .nf-field-element textarea[disabled],
+.nf-form-cont .nf-field-element select[disabled] {
+  background: #f7f7f7;
+  opacity: 0.9;
+  cursor: not-allowed;
+}
+
+/* Validation / error state (if Ninja Forms marks error fields) */
+.nf-form-cont .nf-error .nf-field-element input,
+.nf-form-cont .nf-error .nf-field-element textarea,
+.nf-form-cont .nf-error .nf-field-element select {
+  border-color: #e14b4b;
+  box-shadow: 0 0 0 4px rgba(225,75,75,0.06);
+}
+
 
 @media (max-width: 600px) {
   body.page-search .results .artist-card .artist-service,
