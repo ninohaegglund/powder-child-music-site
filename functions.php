@@ -200,13 +200,12 @@ add_shortcode('artist_includes_equipment', function($atts){
 
   ob_start();
   echo '<div class="artist-flag artist-flag--equipment">';
-  echo '<p class="artist-flag__title">'.esc_html($a['title']).':</p> ';
   $active_class = $isOn ? 'is-active' : '';
   $aria = $isOn ? 'true' : 'false';
   echo '<a class="artist-toggle '.esc_attr($active_class).'" role="button" aria-pressed="'.esc_attr($aria).'" href="'.esc_url($url).'">';
   echo '<span class="artist-toggle__track" aria-hidden="true"><span class="artist-toggle__thumb"></span></span>';
-  echo '<span class="artist-toggle__label">'.($isOn ? '' : '').'</span>';
   echo '</a>';
+  echo '<p class="artist-flag__title">'.esc_html($a['title']).'</p>';
   echo '</div>';
   return ob_get_clean();
 });
@@ -340,3 +339,47 @@ add_shortcode('artist_search_results', function($atts){
   wp_reset_postdata();
   return ob_get_clean();
 });
+
+  // Register slider block (no-build) and its assets
+  add_action('init', function(){
+    $ver = wp_get_theme()->get('Version');
+
+    wp_register_script(
+      'powder-slider-editor',
+      get_stylesheet_directory_uri() . '/blocks/slider/editor.js',
+      array('wp-blocks','wp-element','wp-block-editor','wp-i18n'),
+      $ver,
+      true
+    );
+
+    wp_register_script(
+      'powder-slider',
+      get_stylesheet_directory_uri() . '/blocks/slider/slider-init.js',
+      array(),
+      $ver,
+      true
+    );
+
+    wp_register_style(
+      'powder-slider-editor-style',
+      get_stylesheet_directory_uri() . '/blocks/slider/editor.css',
+      array('wp-edit-blocks'),
+      $ver
+    );
+
+    wp_register_style(
+      'powder-slider-style',
+      get_stylesheet_directory_uri() . '/blocks/slider/style.css',
+      array(),
+      $ver
+    );
+
+    if (function_exists('register_block_type')) {
+      register_block_type('powder-child/slider', array(
+        'editor_script' => 'powder-slider-editor',
+        'editor_style'  => 'powder-slider-editor-style',
+        'script'        => 'powder-slider',
+        'style'         => 'powder-slider-style',
+      ));
+    }
+  });
