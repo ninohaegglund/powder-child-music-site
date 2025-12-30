@@ -93,7 +93,6 @@ body.page-search .artist-terms--disclosure .artist-terms__options,
 /* Make disclosure panels overlay content instead of pushing layout */
 .artist-terms--disclosure { position: relative; }
 .artist-terms--disclosure .artist-terms__panel {
-  position: absolute;
   top: calc(100% + 8px);
   left: 0;
   z-index: 9999;
@@ -402,6 +401,75 @@ body.page-search .results .pagination .current,
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   }
 }
+
+/* Minimal styles for JS-only floating term panel */
+.js-artist-panel { box-shadow: 0 8px 30px rgba(0,0,0,.12); font-size: 16px; }
+.js-artist-panel .js-artist-panel__list label { cursor: pointer; }
+.js-artist-panel .js-artist-apply {
+  background: #76153C;
+  color: #fff;
+  border: 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* hide original disclosure panel to avoid duplicate visuals */
+.artist-terms--disclosure .artist-terms__panel { display: none !important; }
+
+/* subtle open animation */
+.js-artist-panel {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.995);
+  transition: opacity .18s ease, transform .22s cubic-bezier(.2,.9,.2,1);
+  pointer-events: none;
+}
+.js-artist-panel.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Custom checkbox / radio styling inside the JS panel */
+.js-artist-panel input[type="checkbox"],
+.js-artist-panel input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  margin: 0 10px 0 0;
+  vertical-align: middle;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
+  display: inline-block;
+  cursor: pointer;
+  transition: background .12s ease, border-color .12s ease, transform .08s ease;
+  position: relative;
+}
+
+.js-artist-panel input[type="checkbox"]:focus,
+.js-artist-panel input[type="radio"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(118,21,60,0.08);
+}
+
+.js-artist-panel input[type="checkbox"]:hover,
+.js-artist-panel input[type="radio"]:hover { transform: translateY(-1px); }
+
+/* Checked state: use SVG checkmark (white) and theme color background */
+.js-artist-panel input[type="checkbox"]:checked,
+.js-artist-panel input[type="radio"]:checked {
+  background: #76153c;
+  border-color: #76153c;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffffff' d='M20.285 6.709a1 1 0 0 0-1.414-1.418l-9.193 9.2-3.176-3.176a1 1 0 1 0-1.414 1.414l3.96 3.96a1 1 0 0 0 1.414 0l9.523-9.98z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+}
+
+/* Keep labels aligned */
+.js-artist-panel label { display: flex; align-items: center; gap: 8px; }
 
 
 
