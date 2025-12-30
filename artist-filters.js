@@ -31,6 +31,9 @@
       document.body.appendChild(panel);
 
       var list = panel.querySelector('.js-artist-panel__list');
+      // remember original summary text so we can update counts after AJAX
+      var originalSummaryText = summary.textContent.trim();
+      try { summary.dataset.orig = originalSummaryText; } catch (e) {}
 
       // If there are rendered checkbox options, copy them. Otherwise, try to build from labels/selects.
       if (origOptions && origOptions.length) {
@@ -72,6 +75,79 @@
       function positionPanel(){
         var r = summary.getBoundingClientRect();
         // prefer matching the trigger width when possible
+
+    // Intercept equipment toggle clicks and fetch results via AJAX (preserves other filters)
+    document.addEventListener('click', function(e){
+      var toggle = e.target.closest && e.target.closest('.artist-toggle');
+      if (!toggle) return;
+      // prevent navigation and other handlers as early as possible
+      e.preventDefault();
+      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+
+      // Build URL from current location, toggling includes_equipment while preserving other params
+      try {
+        var url = new URL(window.location.href);
+        var isOnNow = url.searchParams.get('includes_equipment') !== null;
+        if (isOnNow) {
+          url.searchParams.delete('includes_equipment');
+        } else {
+          url.searchParams.set('includes_equipment', 'true');
+        }
+        var href = url.href;
+
+        toggle.classList.add('is-loading');
+
+        fetch(href, { method: 'GET', credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(function(resp){ if (!resp.ok) throw new Error('Network error'); return resp.text(); })
+          .then(function(html){
+            var parser = new DOMParser();
+            var doc = parser.parseFromString(html, 'text/html');
+            var newResults = doc.querySelector('.results');
+            var curResults = document.querySelector('.results');
+            if (newResults && curResults) {
+              curResults.parentNode.replaceChild(newResults, curResults);
+              history.pushState(null, '', href);
+            } else {
+              // fallback to full navigation
+              window.location.href = href;
+              return;
+            }
+
+            // update toggle active state based on new URL param
+            var nowOn = (new URL(href)).searchParams.get('includes_equipment') !== null;
+            document.querySelectorAll('.artist-toggle').forEach(function(t){
+              if (nowOn) t.classList.add('is-active'); else t.classList.remove('is-active');
+              t.setAttribute('aria-pressed', nowOn ? 'true' : 'false');
+              // update href attribute to reflect new state for non-JS fallbacks
+              try { t.href = href; } catch (e) {}
+            });
+
+            // Optionally sync other UI state: update summary counts or inputs if needed
+          })
+          .catch(function(){ window.location.href = href; })
+            .finally(function(){ toggle.classList.remove('is-loading'); });
+        } catch (err) {
+          // if URL parsing fails, fallback to default behavior
+          return;
+        }
+      }, true); // use capture so we intercept before other listeners
+
+      // Prevent anchor navigation races on initial load by neutralizing toggle hrefs
+      function neutralizeArtistToggles(){
+        document.querySelectorAll('.artist-toggle').forEach(function(t){
+          try{
+            var h = t.getAttribute('href');
+            if (h) t.dataset.origHref = h;
+            // replace href so clicks won't navigate before our handlers run
+            t.setAttribute('href', '#');
+          } catch (e) { /* ignore */ }
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', neutralizeArtistToggles);
+      } else {
+        neutralizeArtistToggles();
+      }
         var desiredWidth = Math.max(260, Math.min(400, Math.round(r.width))); // keep it reasonable
         panel.style.width = desiredWidth + 'px';
 
@@ -129,9 +205,10 @@
       });
 
       panel.querySelector('.js-artist-apply').addEventListener('click', function(){
-        // copy selections back to original inputs and submit via GET
+        // copy selections back to original inputs and fetch results via AJAX
+        var applyBtn = this;
         var sample = list.querySelector('input[name]');
-        if (!sample) { panel.style.display = 'none'; return; }
+        if (!sample) { closePanel(); return; }
         var key = sample.name; // may include []
 
         // gather checked values
@@ -149,7 +226,65 @@
         checked.forEach(function(val){ newParams.append(key, val); });
 
         var url = window.location.pathname + (newParams.toString() ? ('?' + newParams.toString()) : '');
-        window.location.href = url;
+
+        // show loading state
+        var origText = applyBtn.textContent;
+        applyBtn.disabled = true;
+        applyBtn.textContent = 'Laddar...';
+
+        fetch(url, { method: 'GET', credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+          .then(function(resp){ if (!resp.ok) throw new Error('Network error'); return resp.text(); })
+          .then(function(html){
+              try {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+                var newResults = doc.querySelector('.results');
+                var curResults = document.querySelector('.results');
+                if (newResults && curResults) {
+                  curResults.parentNode.replaceChild(newResults, curResults);
+                } else {
+                  // fallback: reload page
+                  window.location.href = url; return;
+                }
+                // update URL without reloading
+                history.pushState(null, '', url);
+                // sync checked state back to the original inputs in the form
+                // uncheck all original inputs first
+                var origInputs = form.querySelectorAll('input[name]');
+                origInputs.forEach(function(oi){
+                  if (oi.type === 'checkbox' || oi.type === 'radio') oi.checked = false;
+                  else oi.value = '';
+                });
+                // set checked for matching values
+                checked.forEach(function(val){
+                  // try both checkbox/radio and select option
+                  var match = form.querySelectorAll('input[name="' + key + '"][value="' + CSS.escape(val) + '"]');
+                  if (match && match.length) {
+                    match.forEach(function(m){ if (m.type==='checkbox' || m.type==='radio') m.checked = true; else m.value = val; });
+                  } else {
+                    var sel = form.querySelector('select[name="' + key + '"]');
+                    if (sel) {
+                      Array.from(sel.options).forEach(function(o){ o.selected = (o.value === val); });
+                    }
+                  }
+                });
+
+                // update the disclosure summary text to show count
+                if (summary) {
+                  var base = summary.dataset.orig || originalSummaryText || '';
+                  var count = checked.length;
+                  summary.textContent = base + (count > 0 ? ' (' + count + ')' : '');
+                }
+
+                // close panel
+                closePanel();
+              } catch (err) {
+                console.error(err);
+                window.location.href = url; // fallback
+              }
+          })
+          .catch(function(){ window.location.href = url; })
+          .finally(function(){ applyBtn.disabled = false; applyBtn.textContent = origText; });
       });
 
       // close on outside click (use closePanel so class toggles remain consistent)
