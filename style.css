@@ -430,6 +430,20 @@ body.page-search .results .pagination .current,
   pointer-events: auto;
 }
 
+.filter-section {
+  position: sticky;
+  top: 16px;
+  z-index: 10;
+}
+
+@media (max-width: 640px) {
+  .filter-section {
+    position: static;
+    top: auto;
+    z-index: auto;
+  }
+}
+
 /* Custom checkbox / radio styling inside the JS panel */
 .js-artist-panel input[type="checkbox"],
 .js-artist-panel input[type="radio"] {
