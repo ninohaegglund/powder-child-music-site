@@ -6,7 +6,7 @@
 .powder-slider__nav--prev{left:.5rem}
 .powder-slider__nav--next{right:.5rem}
 
-/* Mobile / small screens: keep arrows overlayed but increase touch target */
+/* Mobile */
 @media (max-width: 700px) {
   .powder-slider__nav{padding:.75rem 1rem;border-radius:8px;font-size:1.1rem}
   .powder-slider__nav:focus{outline:3px solid rgba(255,255,255,.25);outline-offset:2px}

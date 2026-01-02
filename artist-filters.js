@@ -1,13 +1,9 @@
 (function(){
-  // Simple JS-only floating panel for artist-term disclosures.
-  // Submits via GET (page reload) to preserve current server behavior.
   function initArtistPanels(){
     document.querySelectorAll('.artist-terms--disclosure').forEach(function(form){
       var details = form.querySelector('details');
       var summary = details ? details.querySelector('summary') : null;
-      // If structure differs, try a fallback trigger inside the form
       if (!summary) summary = form.querySelector('.artist-terms__trigger') || form.querySelector('button');
-      // collect original option inputs (may be absent if display is dropdown)
       var origOptions = form.querySelectorAll('.artist-terms__option input');
       if (!summary) return;
 
@@ -31,11 +27,9 @@
       document.body.appendChild(panel);
 
       var list = panel.querySelector('.js-artist-panel__list');
-      // remember original summary text so we can update counts after AJAX
       var originalSummaryText = summary.textContent.trim();
       try { summary.dataset.orig = originalSummaryText; } catch (e) {}
 
-      // If there are rendered checkbox options, copy them. Otherwise, try to build from labels/selects.
       if (origOptions && origOptions.length) {
         origOptions.forEach(function(inp){
           var label = inp.closest('label');
@@ -53,7 +47,6 @@
           list.appendChild(l);
         });
       } else {
-        // try selects inside the form (dropdown case) to build options
         var sel = form.querySelector('select');
         if (sel) {
           Array.from(sel.options).forEach(function(opt){
@@ -74,17 +67,13 @@
 
       function positionPanel(){
         var r = summary.getBoundingClientRect();
-        // prefer matching the trigger width when possible
 
-    // Intercept equipment toggle clicks and fetch results via AJAX (preserves other filters)
     document.addEventListener('click', function(e){
       var toggle = e.target.closest && e.target.closest('.artist-toggle');
       if (!toggle) return;
-      // prevent navigation and other handlers as early as possible
       e.preventDefault();
       if (e.stopImmediatePropagation) e.stopImmediatePropagation();
 
-      // Build URL from current location, toggling includes_equipment while preserving other params
       try {
         var url = new URL(window.location.href);
         var isOnNow = url.searchParams.get('includes_equipment') !== null;
@@ -108,7 +97,7 @@
               curResults.parentNode.replaceChild(newResults, curResults);
               history.pushState(null, '', href);
             } else {
-              // fallback to full navigation
+              // fallback to full page reload
               window.location.href = href;
               return;
             }
@@ -122,23 +111,19 @@
               try { t.href = href; } catch (e) {}
             });
 
-            // Optionally sync other UI state: update summary counts or inputs if needed
           })
           .catch(function(){ window.location.href = href; })
             .finally(function(){ toggle.classList.remove('is-loading'); });
         } catch (err) {
-          // if URL parsing fails, fallback to default behavior
           return;
         }
-      }, true); // use capture so we intercept before other listeners
+      }, true); 
 
-      // Prevent anchor navigation races on initial load by neutralizing toggle hrefs
       function neutralizeArtistToggles(){
         document.querySelectorAll('.artist-toggle').forEach(function(t){
           try{
             var h = t.getAttribute('href');
             if (h) t.dataset.origHref = h;
-            // replace href so clicks won't navigate before our handlers run
             t.setAttribute('href', '#');
           } catch (e) { /* ignore */ }
         });
@@ -148,7 +133,7 @@
       } else {
         neutralizeArtistToggles();
       }
-        var desiredWidth = Math.max(260, Math.min(400, Math.round(r.width))); // keep it reasonable
+        var desiredWidth = Math.max(260, Math.min(400, Math.round(r.width))); 
         panel.style.width = desiredWidth + 'px';
 
         var left = Math.round(r.left + window.scrollX);
@@ -205,16 +190,13 @@
       });
 
       panel.querySelector('.js-artist-apply').addEventListener('click', function(){
-        // copy selections back to original inputs and fetch results via AJAX
         var applyBtn = this;
         var sample = list.querySelector('input[name]');
         if (!sample) { closePanel(); return; }
         var key = sample.name; // may include []
 
-        // gather checked values
         var checked = Array.from(list.querySelectorAll('input:checked')).map(function(ci){ return ci.value; });
 
-        // rebuild querystring preserving other params
         var params = new URLSearchParams(window.location.search);
         var baseParams = [];
         for (const [k,v] of params) {
@@ -257,7 +239,6 @@
                 });
                 // set checked for matching values
                 checked.forEach(function(val){
-                  // try both checkbox/radio and select option
                   var match = form.querySelectorAll('input[name="' + key + '"][value="' + CSS.escape(val) + '"]');
                   if (match && match.length) {
                     match.forEach(function(m){ if (m.type==='checkbox' || m.type==='radio') m.checked = true; else m.value = val; });
@@ -280,14 +261,14 @@
                 closePanel();
               } catch (err) {
                 console.error(err);
-                window.location.href = url; // fallback
+                window.location.href = url;
               }
           })
           .catch(function(){ window.location.href = url; })
           .finally(function(){ applyBtn.disabled = false; applyBtn.textContent = origText; });
       });
 
-      // close on outside click (use closePanel so class toggles remain consistent)
+      // close on outside click
       document.addEventListener('pointerdown', function(ev){
         if (panel.classList.contains('is-open') && !panel.contains(ev.target) && !summary.contains(ev.target)) closePanel();
       }, { passive: true });

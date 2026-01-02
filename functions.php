@@ -32,9 +32,9 @@ add_shortcode('artist_terms', function($atts){
     'orderby'    => 'name',
     'order'      => 'ASC',
     'hide_empty' => '0',
-    'param'      => '',            // query param name; defaults to taxonomy slug
+    'param'      => '',            
     'title'      => '',
-    'placeholder'=> '',            // label shown for dropdown/disclosure when title is not used
+    'placeholder'=> '',            
     'link_to'    => 'search',      // search | archive
   ], $atts, 'artist_terms');
 
@@ -177,7 +177,7 @@ add_shortcode('artist_terms', function($atts){
 /* ===== Includes equipment toggle ===== */
 add_shortcode('artist_includes_equipment', function($atts){
   $a = shortcode_atts([
-  'param' => 'includes_equipment',   // prefer snake_case to match meta key
+  'param' => 'includes_equipment',  
   'title' => 'Med utrustning',
 ], $atts, 'artist_includes_equipment');
 

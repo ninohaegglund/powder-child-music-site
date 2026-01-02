@@ -436,6 +436,12 @@ body.page-search .results .pagination .current,
   z-index: 10;
 }
 
+.footer-link {
+font-size:330px;
+text-decoration: none;
+
+}
+
 @media (max-width: 640px) {
   .filter-section {
     position: static;
